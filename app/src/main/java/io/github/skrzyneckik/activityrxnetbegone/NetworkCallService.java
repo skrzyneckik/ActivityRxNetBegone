@@ -30,7 +30,7 @@ public class NetworkCallService extends Service {
 
     @Override
     public void onCreate() {
-        // below "TODO" copied form IntentService - maybe we can think about it
+        // below "TODO" copied from IntentService - maybe we can think about it
         // TODO: It would be nice to have an option to hold a partial wakelock
         // during processing, and to have a static startService(Context, Intent)
         // method that would launch the service & hand off a wakelock.
