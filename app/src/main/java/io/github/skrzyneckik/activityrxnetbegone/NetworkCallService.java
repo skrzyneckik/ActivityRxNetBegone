@@ -7,7 +7,12 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 
+import java.util.concurrent.TimeUnit;
+
 import io.github.skrzyneckik.activityrxnetbegone.util.RxUtils;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -45,6 +50,13 @@ public class NetworkCallService extends Service {
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+
+        subscriptions.add(
+            longRunningTask()
+            .subscribeOn(AndroidSchedulers.from(mServiceLooper))
+            .subscribe()
+        );
+
         return Service.START_REDELIVER_INTENT;
     }
 
@@ -53,5 +65,9 @@ public class NetworkCallService extends Service {
         super.onDestroy();
         RxUtils.cleanSubscriptionsIfNotNull(subscriptions);
         mServiceLooper.quit();
+    }
+
+    public Observable longRunningTask() {
+        return Observable.just(null).delay(10, TimeUnit.SECONDS);
     }
 }
