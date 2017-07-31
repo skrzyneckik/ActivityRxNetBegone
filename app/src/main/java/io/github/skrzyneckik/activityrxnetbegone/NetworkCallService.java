@@ -6,13 +6,13 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.concurrent.TimeUnit;
 
 import io.github.skrzyneckik.activityrxnetbegone.util.RxUtils;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -20,6 +20,8 @@ import rx.subscriptions.CompositeSubscription;
  */
 
 public class NetworkCallService extends Service {
+
+    public static final String LONG_RUNNING_TASK_RESULT = "io.github.skrzyneckik.LONG_RUNNING_TASK_RESULT";
 
     private volatile Looper mServiceLooper;
     private volatile CompositeSubscription subscriptions;
@@ -41,7 +43,7 @@ public class NetworkCallService extends Service {
         // method that would launch the service & hand off a wakelock.
 
         super.onCreate();
-        HandlerThread thread = new HandlerThread("JFSSyncService[Normal]", Thread.NORM_PRIORITY);
+        HandlerThread thread = new HandlerThread("NetworkCallService[Normal]", Thread.NORM_PRIORITY);
         thread.start();
 
         mServiceLooper = thread.getLooper();
@@ -54,7 +56,9 @@ public class NetworkCallService extends Service {
         subscriptions.add(
             longRunningTask()
             .subscribeOn(AndroidSchedulers.from(mServiceLooper))
-            .subscribe()
+            .subscribe(success ->
+                LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(LONG_RUNNING_TASK_RESULT))
+            )
         );
 
         return Service.START_REDELIVER_INTENT;
